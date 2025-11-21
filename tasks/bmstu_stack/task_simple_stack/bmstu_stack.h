@@ -27,23 +27,6 @@ class stack
 		size_++;
 	}
 
-	void push(const T& value)
-	{
-		T* new_data = get_new();
-		new (&new_data[size_]) T(value);
-		operator delete(data_);
-		data_ = new_data;
-		size_ += 1;
-	}
-
-	void push(T&& value)
-	{
-		T* new_data = get_new();
-		new (&new_data[size_]) T(std::move(value));
-		operator delete(data_);
-		data_ = new_data;
-		size_++;
-	}
 	void clear() noexcept
 	{
 		for (size_t i = 0; i < size_; ++i)
@@ -52,6 +35,10 @@ class stack
 		data_ = nullptr;
 		size_ = 0;
 	}
+
+	void push(const T& value) { emplace(value); }
+
+	void push(T&& value) { emplace(std::move(value)); }
 
 	void pop()
 	{
