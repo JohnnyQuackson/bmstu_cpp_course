@@ -29,7 +29,7 @@ class stack
 
 	void clear() noexcept
 	{
-		for (size_t i = 0; i < size_; ++i)
+		for (size_t i = size_ - 1; i > -1; i--)
 			data_[i].~T();
 		operator delete(data_);
 		data_ = nullptr;
@@ -78,7 +78,7 @@ class stack
 
 	T* get_new()
 	{
-		T* new_data = static_cast<T*>(operator new(sizeof(T) * (size_ + 1)));
+		T* new_data = (T*)(operator new(sizeof(T) * (size_ + 1)));
 		for (size_t i = 0; i < size_; i++)
 		{
 			new (&new_data[i]) T(std::move(data_[i]));
