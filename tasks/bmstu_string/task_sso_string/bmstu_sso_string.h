@@ -42,9 +42,12 @@ class basic_string
 	Data data_;
 	bool is_long_;
 
-	bool is_long() const { return false; }
+	bool is_long() const { return is_long_; }
 
-	T* get_ptr() { return nullptr; }
+	T* get_ptr()
+	{
+		return is_long() ? data_.long_str.ptr : data_.short_str.buffer;
+	}
 
 	const T* get_ptr() const { return nullptr; }
 

@@ -2,14 +2,14 @@ name: C++ Style Check
 
 on:
   push:
-    branches: [main, hw]
+    branches: [main, syringe]
     paths:
       - 'tasks/**/*.c'
       - 'tasks/**/*.cpp'
       - 'tasks/**/*.h'
       - 'tasks/**/*.hpp'
   pull_request:
-    branches: [main, hw]
+    branches: [main, syringe]
     paths:
       - 'tasks/**/*.c'
       - 'tasks/**/*.cpp'

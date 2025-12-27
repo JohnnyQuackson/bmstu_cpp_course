@@ -2,9 +2,9 @@ name: C++ Build, Test, and Generate Report
 
 on:
   push:
-    branches: [main, hw]
+    branches: [main, syringe]
   pull_request:
-    branches: [main, hw]
+    branches: [main, syringe]
 
 jobs:
   build-and-test:
