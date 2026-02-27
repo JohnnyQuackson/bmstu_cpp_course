@@ -157,11 +157,11 @@ class basic_string
 		is_long_ = other.is_long_;
 		if (is_long())
 		{
-			size_t cap = other.data_.long_str.capacity;
+			size_t cap = other.get_capacity();
 			data_.long_str.ptr = new T[cap];
-			data_.long_str.size = other.data_.long_str.size;
+			data_.long_str.size = other.get_size();
 			data_.long_str.capacity = cap;
-			std::memcpy(data_.long_str.ptr, other.data_.long_str.ptr,
+			std::memcpy(data_.long_str.ptr, other.get_ptr(),
 						(data_.long_str.size + 1) * sizeof(T));
 		}
 		else
@@ -178,13 +178,15 @@ class basic_string
 			data_.long_str = dying.data_.long_str;
 			dying.data_.long_str.ptr = nullptr;
 			dying.data_.long_str.size = 0;
+			dying.data_.long_str.capacity = 0;
 		}
 		else
 		{
 			data_.short_str = dying.data_.short_str;
 		}
-		dying.is_long_ = false;
 		dying.data_.short_str.size = 0;
+		dying.data_.short_str.buffer[0] = '\0';
+		dying.is_long_ = false;
 	}
 
 	~basic_string() { clean_(); }
@@ -236,10 +238,10 @@ class basic_string
 		if (len <= SSO_CAPACITY)
 		{
 			clean_();
-			is_long_ = false;
 			std::memcpy(data_.short_str.buffer, c_str, len * sizeof(T));
 			data_.short_str.buffer[len] = '\0';
 			data_.short_str.size = (unsigned char)(len);
+			is_long_ = false;
 		}
 		else
 		{
@@ -266,13 +268,12 @@ class basic_string
 		if (other.is_long_)
 		{
 			other.data_.long_str.ptr = nullptr;
+			other.data_.long_str.capacity = 0;
 			other.data_.long_str.size = 0;
 		}
-		else
-		{
-			other.data_.short_str.size = 0;
-			other.data_.short_str.buffer[0] = '\0';
-		}
+
+		other.data_.short_str.size = 0;
+		other.data_.short_str.buffer[0] = '\0';
 		other.is_long_ = false;
 
 		return *this;
@@ -411,6 +412,8 @@ class basic_string
 		{
 			delete[] data_.long_str.ptr;
 			data_.long_str.ptr = nullptr;
+			data_.long_str.size = 0;
+			data_.long_str.capacity = 0;
 		}
 		is_long_ = false;
 		data_.short_str.size = 0;
