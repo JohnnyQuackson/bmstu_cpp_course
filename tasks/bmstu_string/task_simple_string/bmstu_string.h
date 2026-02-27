@@ -28,7 +28,7 @@ class simple_basic_string
 
 	simple_basic_string(size_t size)
 	{
-		T filler = static_cast<T>(' ');
+		T filler = (T)(' ');
 		ptr_ = new T[size + 1];
 		size_ = size;
 		for (size_t i = 0; i < size_; ++i)

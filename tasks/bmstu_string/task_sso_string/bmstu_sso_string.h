@@ -75,12 +75,12 @@ class basic_string
 
 	basic_string(size_t size)
 	{
-		T filler = static_cast<T>(' ');
+		T filler = (T)(' ');
 
 		if (size <= SSO_CAPACITY)
 		{
 			is_long_ = false;
-			data_.short_str.size = static_cast<unsigned char>(size);
+			data_.short_str.size = (unsigned char)(size);
 			for (size_t i = 0; i < size; ++i)
 			{
 				data_.short_str.buffer[i] = filler;
@@ -107,7 +107,7 @@ class basic_string
 		if (size <= SSO_CAPACITY)
 		{
 			is_long_ = false;
-			data_.short_str.size = static_cast<unsigned char>(size);
+			data_.short_str.size = (unsigned char)(size);
 			size_t i = 0;
 			for (T c : il)
 			{
@@ -140,7 +140,7 @@ class basic_string
 			is_long_ = false;
 			std::memcpy(data_.short_str.buffer, c_str, len * sizeof(T));
 			data_.short_str.buffer[len] = '\0';
-			data_.short_str.size = static_cast<unsigned char>(len);
+			data_.short_str.size = (unsigned char)(len);
 		}
 		else
 		{
@@ -193,8 +193,7 @@ class basic_string
 
 	size_t size() const
 	{
-		return is_long() ? data_.long_str.size
-						 : static_cast<size_t>(data_.short_str.size);
+		return is_long() ? data_.long_str.size : (size_t)(data_.short_str.size);
 	}
 
 	bool is_using_sso() const { return !is_long(); }
@@ -240,7 +239,7 @@ class basic_string
 			is_long_ = false;
 			std::memcpy(data_.short_str.buffer, c_str, len * sizeof(T));
 			data_.short_str.buffer[len] = '\0';
-			data_.short_str.size = static_cast<unsigned char>(len);
+			data_.short_str.size = (unsigned char)(len);
 		}
 		else
 		{
@@ -373,7 +372,7 @@ class basic_string
 			}
 			else
 			{
-				data_.short_str.size = static_cast<unsigned char>(new_size);
+				data_.short_str.size = (unsigned char)(new_size);
 			}
 		}
 		return *this;
