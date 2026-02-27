@@ -91,8 +91,8 @@ class basic_string
 		{
 			is_long_ = true;
 			data_.long_str.size = size;
-			data_.long_str.capacity = size + 1;
-			data_.long_str.ptr = new T[get_capacity()];
+			data_.long_str.capacity = size;
+			data_.long_str.ptr = new T[get_capacity() + 1];
 			for (size_t i = 0; i < size; ++i)
 			{
 				data_.long_str.ptr[i] = filler;
@@ -119,8 +119,8 @@ class basic_string
 		{
 			is_long_ = true;
 			data_.long_str.size = size;
-			data_.long_str.capacity = size + 1;
-			data_.long_str.ptr = new T[get_capacity()];
+			data_.long_str.capacity = size;
+			data_.long_str.ptr = new T[get_capacity() + 1];
 
 			size_t i = 0;
 			for (T c : il)
@@ -145,9 +145,9 @@ class basic_string
 		else
 		{
 			is_long_ = true;
-			data_.long_str.capacity = len + 1;
+			data_.long_str.capacity = len;
 			data_.long_str.size = len;
-			data_.long_str.ptr = new T[get_capacity()];
+			data_.long_str.ptr = new T[get_capacity() + 1];
 			std::memcpy(data_.long_str.ptr, c_str, (len + 1) * sizeof(T));
 		}
 	}
@@ -158,7 +158,7 @@ class basic_string
 		if (is_long())
 		{
 			size_t cap = other.get_capacity();
-			data_.long_str.ptr = new T[cap];
+			data_.long_str.ptr = new T[cap + 1];
 			data_.long_str.size = other.get_size();
 			data_.long_str.capacity = cap;
 			std::memcpy(data_.long_str.ptr, other.get_ptr(),
@@ -214,7 +214,7 @@ class basic_string
 		{
 			size_t cap = other.get_capacity();
 			size_t size = other.get_size();
-			T* new_ptr = new T[cap];
+			T* new_ptr = new T[cap + 1];
 			std::memcpy(new_ptr, other.get_ptr(), (size + 1) * sizeof(T));
 			clean_();
 			data_.long_str.size = size;
@@ -245,8 +245,8 @@ class basic_string
 		}
 		else
 		{
-			size_t new_cap = len + 1;
-			T* new_ptr = new T[new_cap];
+			size_t new_cap = len;
+			T* new_ptr = new T[new_cap + 1];
 			std::memcpy(new_ptr, c_str, (len + 1) * sizeof(T));
 			clean_();
 			data_.long_str.capacity = new_cap;
@@ -314,8 +314,8 @@ class basic_string
 		size_t new_size = current_size + other_size;
 		if (new_size > get_capacity())
 		{
-			size_t new_cap = new_size + 1;
-			T* new_ptr = new T[new_cap];
+			size_t new_cap = new_size;
+			T* new_ptr = new T[new_cap + 1];
 
 			std::memcpy(new_ptr, get_ptr(), current_size * sizeof(T));
 			std::memcpy(new_ptr + current_size, other.get_ptr(),
@@ -350,8 +350,8 @@ class basic_string
 		size_t new_size = current_size + 1;
 		if (new_size > get_capacity())
 		{
-			size_t new_cap = new_size + 1;
-			T* new_ptr = new T[new_cap];
+			size_t new_cap = new_size;
+			T* new_ptr = new T[new_cap + 1];
 			std::memcpy(new_ptr, get_ptr(), current_size * sizeof(T));
 			std::memcpy(new_ptr + current_size, &symbol, sizeof(T));
 			new_ptr[new_size] = '\0';
