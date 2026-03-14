@@ -237,9 +237,13 @@ class basic_string
 
 		if (len <= SSO_CAPACITY)
 		{
+			T new_buffer[SSO_CAPACITY + 1];
+			std::memcpy(new_buffer, c_str, len * sizeof(T));
+			new_buffer[len] = '\0';
+
 			clean_();
-			std::memcpy(data_.short_str.buffer, c_str, len * sizeof(T));
-			data_.short_str.buffer[len] = '\0';
+			std::memcpy(data_.short_str.buffer, new_buffer,
+						(len + 1) * sizeof(T));
 			data_.short_str.size = (unsigned char)(len);
 			is_long_ = false;
 		}
@@ -330,8 +334,8 @@ class basic_string
 		else
 		{
 			// копируем данные из other
-			std::memcpy(get_ptr() + current_size, other.get_ptr(),
-						(other_size + 1) * sizeof(T));
+			std::memmove(get_ptr() + current_size, other.get_ptr(),
+						 (other_size + 1) * sizeof(T));
 		}
 		if (is_long())
 		{
