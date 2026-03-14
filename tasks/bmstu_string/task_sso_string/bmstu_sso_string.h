@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstring>	// для std::memcpy
+#include <algorithm>  // для std::max
+#include <cstring>	  // для std::memcpy
 #include <exception>
 #include <iostream>
 
@@ -138,9 +139,8 @@ class basic_string
 		if (len <= SSO_CAPACITY)
 		{
 			is_long_ = false;
-			std::memcpy(data_.short_str.buffer, c_str, len * sizeof(T));
-			data_.short_str.buffer[len] = '\0';
 			data_.short_str.size = (unsigned char)(len);
+			std::memcpy(data_.short_str.buffer, c_str, (len + 1) * sizeof(T));
 		}
 		else
 		{
@@ -238,8 +238,7 @@ class basic_string
 		if (len <= SSO_CAPACITY)
 		{
 			T new_buffer[SSO_CAPACITY + 1];
-			std::memcpy(new_buffer, c_str, len * sizeof(T));
-			new_buffer[len] = '\0';
+			std::memcpy(new_buffer, c_str, (len + 1) * sizeof(T));
 
 			clean_();
 			std::memcpy(data_.short_str.buffer, new_buffer,
@@ -318,7 +317,7 @@ class basic_string
 		size_t new_size = current_size + other_size;
 		if (new_size > get_capacity())
 		{
-			size_t new_cap = new_size;
+			size_t new_cap = std::max(get_capacity() * 2, new_size);
 			T* new_ptr = new T[new_cap + 1];
 
 			std::memcpy(new_ptr, get_ptr(), current_size * sizeof(T));
@@ -354,7 +353,8 @@ class basic_string
 		size_t new_size = current_size + 1;
 		if (new_size > get_capacity())
 		{
-			size_t new_cap = new_size;
+			size_t new_cap = std::max(get_capacity() * 2, new_size);
+			current_size * 2;
 			T* new_ptr = new T[new_cap + 1];
 			std::memcpy(new_ptr, get_ptr(), current_size * sizeof(T));
 			std::memcpy(new_ptr + current_size, &symbol, sizeof(T));
