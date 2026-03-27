@@ -15,6 +15,103 @@ using wstring = basic_string<wchar_t>;
 using u16string = basic_string<char16_t>;
 using u32string = basic_string<char32_t>;
 
+inline void write_rune_to_utf8(std::ostream& os, char32_t cp)
+{
+	if (cp <= 0x7F)
+	{
+		os.put(static_cast<char>(cp));
+	}
+	else if (cp <= 0x7FF)
+	{
+		os.put(static_cast<char>(0xC0 | ((cp >> 6) & 0x1F)));
+		os.put(static_cast<char>(0x80 | (cp & 0x3F)));
+	}
+	else if (cp <= 0xFFFF)
+	{
+		os.put(static_cast<char>(0xE0 | ((cp >> 12) & 0x0F)));
+		os.put(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+		os.put(static_cast<char>(0x80 | (cp & 0x3F)));
+	}
+	else if (cp <= 0x10FFFF)
+	{
+		os.put(static_cast<char>(0xF0 | ((cp >> 18) & 0x07)));
+		os.put(static_cast<char>(0x80 | ((cp >> 12) & 0x3F)));
+		os.put(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+		os.put(static_cast<char>(0x80 | (cp & 0x3F)));
+	}
+}
+
+template <typename T>
+inline void convert_wide_to_utf8(std::ostream& os, const T* data, size_t size)
+{
+	for (size_t i = 0; i < size; ++i)
+	{
+		char32_t cp = static_cast<char32_t>(data[i]);
+		write_rune_to_utf8(os, cp);
+	}
+}
+
+template <typename TraitsOut>
+inline void convert_utf8_to_wide(std::basic_ostream<wchar_t, TraitsOut>& os,
+								 const char* data,
+								 size_t size)
+{
+	auto udata = reinterpret_cast<const unsigned char*>(data);
+	size_t i = 0;
+	while (i < size)
+	{
+		char32_t cp = 0;
+		int bytes = 0;
+
+		// Читаем заголовочные биты UTF-8
+		if (udata[i] <= 0x7F)
+		{
+			cp = udata[i];
+			bytes = 1;
+		}
+		else if ((udata[i] & 0xE0) == 0xC0)
+		{
+			cp = udata[i] & 0x1F;
+			bytes = 2;
+		}
+		else if ((udata[i] & 0xF0) == 0xE0)
+		{
+			cp = udata[i] & 0x0F;
+			bytes = 3;
+		}
+		else if ((udata[i] & 0xF8) == 0xF0)
+		{
+			cp = udata[i] & 0x07;
+			bytes = 4;
+		}
+		else
+		{
+			++i;
+			continue;
+		}  // Пропускаем мусор
+
+		if (i + bytes > size)
+			break;	// Защита от обрыва строки
+
+		// Дочитываем байты продолжения (10xxxxxx)
+		bool valid = true;
+		for (int j = 1; j < bytes; ++j)
+		{
+			if ((udata[i + j] & 0xC0) != 0x80)
+			{
+				valid = false;
+				break;
+			}
+			cp = (cp << 6) | (udata[i + j] & 0x3F);
+		}
+
+		if (valid)
+		{
+			os.put(static_cast<wchar_t>(cp));
+		}
+		i += bytes;
+	}
+}
 template <typename T>
 class basic_string
 {
@@ -290,13 +387,57 @@ class basic_string
 		return result;
 	}
 
-	template <typename S>
-	friend S& operator<<(S& os, const basic_string& obj)
+	// Новый OUTPUT
+	template <typename CharOut, typename TraitsOut>
+	friend std::basic_ostream<CharOut, TraitsOut>& operator<<(
+		std::basic_ostream<CharOut, TraitsOut>& os,
+		const basic_string<T>& obj)
 	{
-		if (obj.size())
+		if (obj.size() == 0)
+			return os;
+
+		// Типы совпадают
+		if constexpr (std::is_same_v<CharOut, T>)
+		{
 			os.write(obj.data(), obj.get_size());
+		}
+		// Вывод широкой строки в терминал cout
+		else if constexpr (std::is_same_v<CharOut, char> &&
+						   !std::is_same_v<T, char>)
+		{
+			bmstu::convert_wide_to_utf8(os, obj.data(), obj.get_size());
+		}
+		// ===================================================
+		// Вывод строки char в широкий поток wcout
+		// Работает только при настройки локали
+		// ===================================================
+		// #include <locale>
+		// std::ios::sync_with_stdio(false);
+		// std::wcout.imbue(std::locale(""));
+		// std::setlocale(LC_ALL, "");
+		// std::locale::global(std::locale(""));
+		else if constexpr (std::is_same_v<CharOut, wchar_t> &&
+						   std::is_same_v<T, char>)
+		{
+			bmstu::convert_utf8_to_wide(
+				os, reinterpret_cast<const char*>(obj.data()), obj.get_size());
+		}
+
 		return os;
 	}
+
+	// // Старый OUTPUT
+	// template <typename S>
+	// friend S& operator<<(S& os, const basic_string& obj)
+	// {
+	// 	T* ptr = (T*)((void*)obj.get_ptr());
+	// 	while (*ptr != T())
+	// 	{
+	// 		os.put(*ptr);
+	// 		ptr++;
+	// 	}
+	// 	return os;
+	// }
 
 	template <typename S>
 	friend S& operator>>(S& is, basic_string& obj)

@@ -133,18 +133,24 @@ class simple_basic_string
 		return result;
 	}
 
-	template <typename S>
-	friend S& operator<<(S& os, const simple_basic_string& obj)
+	// Модернизированный оператор << для вывода в поток, соответствующий типу
+	// символов строки
+	friend std::basic_ostream<T, std::char_traits<T>>& operator<<(
+		std::basic_ostream<T, std::char_traits<T>>& os,
+		const simple_basic_string<T>& obj)
 	{
 		if (obj.size_ > 0)
 		{
-			os.write(obj.ptr_, obj.size_);
+			os.write(obj.ptr_, static_cast<std::streamsize>(obj.size_));
 		}
 		return os;
 	}
 
-	template <typename S>
-	friend S& operator>>(S& is, simple_basic_string& obj)
+	// Модернизированный оператор >> для чтения из потока, соответствующего типу
+	// символов строки
+	friend std::basic_istream<T, std::char_traits<T>>& operator>>(
+		std::basic_istream<T, std::char_traits<T>>& is,
+		simple_basic_string<T>& obj)
 	{
 		obj.clean_();
 		T c;
@@ -154,7 +160,6 @@ class simple_basic_string
 		}
 		return is;
 	}
-
 	simple_basic_string& operator+=(const simple_basic_string& other)
 	{
 		size_t new_size = size_ + other.size_;

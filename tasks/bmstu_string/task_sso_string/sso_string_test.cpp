@@ -376,3 +376,21 @@ TEST(SSOStringTest, SSOCapacity)
 	ASSERT_FALSE(long_str.is_using_sso());
 	ASSERT_GE(long_str.capacity(), long_str.size());
 }
+
+TEST(SSOStringTest1, DummySSOTest)
+{
+	// 🍆🍆🍆
+	bmstu::string reg_str("Кот 🐈");
+	std::cout << reg_str << std::endl;
+
+	bmstu::wstring str2;
+	bmstu::wstring w_str(L"Я🔢 wasd");
+
+	std::cout << w_str << std::endl;
+	str2 += w_str[1];
+	str2 += w_str[1];
+	std::cout << str2 << std::endl;
+
+	wchar_t item = L'Я';
+	ASSERT_EQ(item, L'Я');
+}
