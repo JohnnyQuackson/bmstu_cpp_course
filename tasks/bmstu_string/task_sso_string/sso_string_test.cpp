@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-
+#include <fstream>
 #include <sstream>
 #include "bmstu_sso_string.h"
 
@@ -377,15 +377,61 @@ TEST(SSOStringTest, SSOCapacity)
 	ASSERT_GE(long_str.capacity(), long_str.size());
 }
 
+void eggplant(int n)
+{
+	std::ofstream file("eggplant.txt", std::ios::trunc);
+	bmstu::wstring str;
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (i <= (n / 2))
+			{
+				if (j >= ((n / 2) - i) && j <= ((n / 2) + i))
+				{
+					str += L'🍆';
+				}
+				else
+				{
+					str += L'💦';
+				}
+			}
+			else
+			{
+				if (j >= ((n / 2) - (n - i - 1)) &&
+					j <= ((n / 2) + (n - i - 1)))
+				{
+					str += L'🍆';
+				}
+				else
+				{
+					str += L'💦';
+				}
+			}
+		}
+		str += L'\n';
+	}
+	file << str;
+}
+
+TEST(SSOStringTest2, EggPlantTest)
+{
+	eggplant(81);
+}
+
 TEST(SSOStringTest1, DummySSOTest)
 {
 	// 🍆🍆🍆
 	bmstu::string reg_str("Кот 🐈");
+	auto sym = reg_str[0];
+	bmstu::string st1;
+	st1 += reg_str[0];
+	st1 += reg_str[1];
+	std::cout << st1 << std::endl;
 	std::cout << reg_str << std::endl;
 
 	bmstu::wstring str2;
 	bmstu::wstring w_str(L"Я🔢 wasd");
-
 	std::cout << w_str << std::endl;
 	str2 += w_str[1];
 	str2 += w_str[1];
