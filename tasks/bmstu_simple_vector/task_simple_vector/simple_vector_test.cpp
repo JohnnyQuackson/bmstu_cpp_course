@@ -480,3 +480,10 @@ TEST(SimpleVector, PushBackCopyMove3)
 	auto it = v.begin();
 	it = nullptr;
 }
+
+TEST(SimpleVector, PushBackCopyMove4)
+{
+	bmstu::simple_vector<int> v;
+	v.pop_back();
+	ASSERT_EQ(0, v.size());
+}
