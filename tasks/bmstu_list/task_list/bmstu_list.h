@@ -57,6 +57,20 @@ class list
 				T,
 				std::bidirectional_iterator_tag>::difference_type& n) override
 		{
+			if (n > 0)
+			{
+				for (auto i = 0; i < n; ++i)
+				{
+					++(*this);
+				}
+			}
+			else if (n < 0)
+			{
+				for (auto i = 0; i > n; --i)
+				{
+					--(*this);
+				}
+			}
 			return *this;
 		}
 		iterator& operator-=(
@@ -65,6 +79,20 @@ class list
 				T,
 				std::bidirectional_iterator_tag>::difference_type& n) override
 		{
+			if (n > 0)
+			{
+				for (auto i = 0; i < n; ++i)
+				{
+					--(*this);
+				}
+			}
+			else if (n < 0)
+			{
+				for (auto i = 0; i > n; --i)
+				{
+					++(*this);
+				}
+			}
 			return *this;
 		}
 		iterator operator+(const typename abstract_iterator<
@@ -74,20 +102,7 @@ class list
 			const override
 		{
 			iterator tmp = *this;
-			if (n > 0)
-			{
-				for (auto i = 0; i < n; ++i)
-				{
-					++tmp;
-				}
-			}
-			else if (n < 0)
-			{
-				for (auto i = 0; i > n; --i)
-				{
-					--tmp;
-				}
-			}
+			tmp += n;
 			return tmp;
 		}
 		iterator operator-(const typename abstract_iterator<
@@ -97,20 +112,7 @@ class list
 			const override
 		{
 			iterator tmp = *this;
-			if (n > 0)
-			{
-				for (auto i = 0; i < n; ++i)
-				{
-					--tmp;
-				}
-			}
-			else if (n < 0)
-			{
-				for (auto i = 0; i > n; --i)
-				{
-					++tmp;
-				}
-			}
+			tmp -= n;
 			return tmp;
 		}
 		typename abstract_iterator<iterator,
