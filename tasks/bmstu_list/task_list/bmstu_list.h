@@ -23,39 +23,47 @@ class list
 	};
 
    public:
-	struct iterator
-		: public abstract_iterator<iterator, T, std::bidirectional_iterator_tag>
+	template <typename ValueType>
+	struct base_iterator
+		: public abstract_iterator<base_iterator<ValueType>,
+								   ValueType,
+								   std::bidirectional_iterator_tag>
 	{
+		using abstract_iterator_father =
+			abstract_iterator<base_iterator<ValueType>,
+							  ValueType,
+							  std::bidirectional_iterator_tag>;
+
 		node* current;
-		iterator() : current(nullptr) {}
-		iterator(node* node) : current(node) {}
-		iterator& operator++() override
+
+		base_iterator() : current(nullptr) {}
+
+		base_iterator(node* n) : current(n) {}
+		base_iterator& operator++() override
 		{
 			current = current->next_node_;
 			return *this;
 		}
-		iterator& operator--() override
+		base_iterator& operator--() override
 		{
 			current = current->prev_node_;
 			return *this;
 		}
-		iterator operator++(int) override
+		base_iterator operator++(int) override
 		{
-			iterator tmp(current);
+			auto tmp(current);
 			current = current->next_node_;
 			return tmp;
 		}
-		iterator operator--(int) override
+		base_iterator operator--(int) override
 		{
-			iterator tmp(current);
+			auto tmp(current);
 			current = current->prev_node_;
 			return tmp;
 		}
-		iterator& operator+=(
-			const typename abstract_iterator<
-				iterator,
-				T,
-				std::bidirectional_iterator_tag>::difference_type& n) override
+		base_iterator& operator+=(
+			const typename abstract_iterator_father::difference_type& n)
+			override
 		{
 			if (n > 0)
 			{
@@ -73,11 +81,9 @@ class list
 			}
 			return *this;
 		}
-		iterator& operator-=(
-			const typename abstract_iterator<
-				iterator,
-				T,
-				std::bidirectional_iterator_tag>::difference_type& n) override
+		base_iterator& operator-=(
+			const typename abstract_iterator_father::difference_type& n)
+			override
 		{
 			if (n > 0)
 			{
@@ -95,62 +101,56 @@ class list
 			}
 			return *this;
 		}
-		iterator operator+(const typename abstract_iterator<
-						   iterator,
-						   T,
-						   std::bidirectional_iterator_tag>::difference_type& n)
-			const override
+		base_iterator operator+(
+			const abstract_iterator_father::difference_type& n) const override
 		{
-			iterator tmp = *this;
+			auto tmp = *this;
 			tmp += n;
 			return tmp;
 		}
-		iterator operator-(const typename abstract_iterator<
-						   iterator,
-						   T,
-						   std::bidirectional_iterator_tag>::difference_type& n)
-			const override
+		base_iterator operator-(
+			const abstract_iterator_father::difference_type& n) const override
 		{
-			iterator tmp = *this;
+			auto tmp = *this;
 			tmp -= n;
 			return tmp;
 		}
-		typename abstract_iterator<iterator,
-								   T,
-								   std::bidirectional_iterator_tag>::reference
-		operator*() const override
-		{
-			return current->value_;
-		}
-		typename abstract_iterator<iterator,
-								   T,
-								   std::bidirectional_iterator_tag>::pointer
-		operator->() const override
-		{
-			return &(current->value_);
-		}
-		bool operator==(const iterator& other) const override
+
+		ValueType& operator*() const override { return current->value_; }
+
+		ValueType* operator->() const override { return &(current->value_); }
+
+		bool operator==(const base_iterator& other) const override
 		{
 			return current == other.current;
 		}
-		bool operator!=(const iterator& other) const override
+
+		bool operator!=(const base_iterator& other) const override
+		{
+			return current != other.current;
+		}
+
+		template <typename OtherValueType>
+		bool operator==(const base_iterator<OtherValueType>& other) const
+		{
+			return current == other.current;
+		}
+		template <typename OtherValueType>
+		bool operator!=(const base_iterator<OtherValueType>& other) const
 		{
 			return current != other.current;
 		}
 		explicit operator bool() const override { return current != nullptr; }
 
-		using diff_t = typename abstract_iterator<
-			iterator,
-			T,
-			std::bidirectional_iterator_tag>::difference_type;
+		using diff_t = typename abstract_iterator_father::difference_type;
 
-		diff_t operator-(const iterator& other) const override
+		diff_t operator-(const base_iterator& other) const override
 		{
 			if (*this == other)
 				return 0;
 			diff_t n = 0;
-			iterator tmp_for = *this;
-			iterator tmp_back = *this;
+			auto tmp_for = *this;
+			auto tmp_back = *this;
 			while (true)
 			{
 				++n;
@@ -173,7 +173,20 @@ class list
 			}
 		}
 	};
-	using const_iterator = iterator;
+
+	struct iterator : public base_iterator<T>
+	{
+		using base_iterator<T>::base_iterator;
+	};
+
+	struct const_iterator : public base_iterator<const T>
+	{
+		const_iterator(const iterator& other)
+			: base_iterator<const T>(other.current)
+		{
+		}
+		using base_iterator<const T>::base_iterator;
+	};
 
 	list()
 	{
@@ -336,7 +349,7 @@ class list
 
 	T& operator[](size_t pos)
 	{
-		iterator cur = begin();
+		auto cur = begin();
 		for (size_t i = 0; i < pos; i++)
 		{
 			++cur;
@@ -346,7 +359,7 @@ class list
 
 	const T& operator[](size_t pos) const
 	{
-		iterator cur = begin();
+		auto cur = begin();
 		for (size_t i = 0; i < pos; i++)
 		{
 			++cur;
@@ -359,7 +372,7 @@ class list
 		if (l.size_ != r.size_)
 			return false;
 		size_t tmp_size = l.size_;
-		iterator it_l = l.begin(), it_r = r.begin();
+		const_iterator it_l = l.begin(), it_r = r.begin();
 		for (size_t i = 0; i < tmp_size; i++)
 		{
 			if (*it_l != *it_r)
@@ -387,7 +400,7 @@ class list
 			os << '}';
 			return os;
 		}
-		iterator now = other.begin(), end = other.end();
+		const_iterator now = other.begin(), end = other.end();
 		--end;
 		while (now != end)
 		{
@@ -412,13 +425,15 @@ class list
 	static auto lexicographical_compare_(const list<T>& lhs, const list<T>& rhs)
 	{
 		size_t min_size = std::min(lhs.size_, rhs.size_);
-		iterator cur_lhs = lhs.begin(), cur_rhs = rhs.begin();
+		auto cur_lhs = lhs.begin(), cur_rhs = rhs.begin();
 		for (size_t i = 0; i < min_size; i++)
 		{
-			if (*lhs != *rhs)
+			if (*cur_lhs != *cur_rhs)
 			{
-				return (*lhs <=> *rhs);
+				return (*cur_lhs <=> *cur_rhs);
 			}
+			++cur_lhs;
+			++cur_rhs;
 		}
 
 		return lhs.size_ <=> rhs.size_;
