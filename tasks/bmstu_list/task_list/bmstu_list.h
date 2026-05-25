@@ -116,9 +116,15 @@ class list
 			return tmp;
 		}
 
-		ValueType& operator*() const override { return current->value_; }
+		abstract_iterator_father::reference operator*() const override
+		{
+			return current->value_;
+		}
 
-		ValueType* operator->() const override { return &(current->value_); }
+		abstract_iterator_father::pointer operator->() const override
+		{
+			return &(current->value_);
+		}
 
 		bool operator==(const base_iterator& other) const override
 		{
@@ -419,6 +425,33 @@ class list
 		now->prev_node_ = new_node;
 		++size_;
 		return iterator{new_node};
+	}
+
+	list& reverse()
+	{
+		node* cur_left = head_->next_node_;
+		node* cur_right = tail_->prev_node_;
+		node* tmp1;
+		node* tmp2;
+		for (size_t i = 0; i < size_ / 2; i++)
+		{
+			tmp1 = cur_left->next_node_;
+			tmp2 = cur_left->prev_node_;
+
+			cur_left->next_node_ = cur_right->next_node_;
+			cur_right->next_node_->prev_node_ = cur_left;
+			cur_left->prev_node_ = cur_right->prev_node_;
+			cur_right->prev_node_->next_node_ = cur_left;
+
+			cur_right->next_node_ = tmp1;
+			cur_right->prev_node_ = tmp2;
+			tmp1->prev_node_ = cur_right;
+			tmp2->next_node_ = cur_right;
+
+			cur_left = cur_right->next_node_;
+			cur_right = cur_left->prev_node_;
+		}
+		return *this;
 	}
 
    private:
