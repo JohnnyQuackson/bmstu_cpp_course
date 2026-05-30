@@ -4,13 +4,7 @@
 # add_subdirectory(bmstu_stack)
 # add_subdirectory(bmstu_simple_vector)
 # add_subdirectory(bmstu_abstract_iterator)
-<<<<<<< Updated upstream
-add_subdirectory(bmstu_list)
-# add_subdirectory(bmstu_optional)
-# add_subdirectory(bmstu_map)
-=======
 # add_subdirectory(bmstu_list)
 # add_subdirectory(bmstu_optional)
 # add_subdirectory(bmstu_map)
 add_subdirectory(bmstu_unordered_map)
->>>>>>> Stashed changes
