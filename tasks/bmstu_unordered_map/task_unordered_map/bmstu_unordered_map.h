@@ -134,7 +134,6 @@ class unordered_map
 	Hash hasher_;
 	Equal equal_;
 
-<<<<<<< HEAD
 	size_type bucket_for(const K& key) const
 	{
 		return hasher_(key) % bucket_count();
@@ -163,11 +162,6 @@ class unordered_map
 		}
 		return x;
 	}
-=======
-	size_type bucket_for(const K& key) const { return 0; }
-
-	void rehash(size_type new_count) {}
->>>>>>> origin/main
 
    public:
 	struct iterator
@@ -194,7 +188,6 @@ class unordered_map
 		reference operator*() const { return *list_it_; }
 		pointer operator->() const { return &(*list_it_); }
 
-<<<<<<< HEAD
 		iterator& operator++()
 		{
 			++list_it_;
@@ -231,13 +224,6 @@ class unordered_map
 			return (buckets_ == o.buckets_ && bucket_idx_ == o.bucket_idx_ &&
 					list_it_ == o.list_it_);
 		}
-=======
-		iterator& operator++() { return *this; }
-
-		iterator operator++(int) { return *this; }
-
-		bool operator==(const iterator& o) const { return false; }
->>>>>>> origin/main
 
 		bool operator!=(const iterator& o) const { return !(*this == o); }
 	};
@@ -273,7 +259,6 @@ class unordered_map
 		reference operator*() const { return *list_it_; }
 		pointer operator->() const { return &(*list_it_); }
 
-<<<<<<< HEAD
 		const_iterator& operator++()
 		{
 			++list_it_;
@@ -310,13 +295,6 @@ class unordered_map
 			return (buckets_ == o.buckets_ && bucket_idx_ == o.bucket_idx_ &&
 					list_it_ == o.list_it_);
 		}
-=======
-		const_iterator& operator++() { return *this; }
-
-		const_iterator operator++(int) { return *this; }
-
-		bool operator==(const const_iterator& o) const { return false; }
->>>>>>> origin/main
 
 		bool operator!=(const const_iterator& o) const { return !(*this == o); }
 	};
@@ -332,7 +310,6 @@ class unordered_map
 	unordered_map& operator=(unordered_map&&) = default;
 	~unordered_map() = default;
 
-<<<<<<< HEAD
 	iterator begin()
 	{
 		size_type idx = 0;
@@ -362,13 +339,6 @@ class unordered_map
 		}
 		return end();
 	}
-=======
-	iterator begin() { return end(); }
-
-	iterator end() { return iterator(&buckets_, buckets_.size(), {}); }
-
-	const_iterator begin() const { return end(); }
->>>>>>> origin/main
 
 	const_iterator end() const
 	{
@@ -378,7 +348,6 @@ class unordered_map
 	const_iterator cbegin() const { return begin(); }
 	const_iterator cend() const { return end(); }
 
-<<<<<<< HEAD
 	size_type size() const noexcept { return size_; }
 
 	bool empty() const noexcept { return size_ == 0; }
@@ -412,47 +381,31 @@ class unordered_map
 		}
 		return end();
 	}
-=======
-	size_type size() const noexcept { return 0; }
-
-	bool empty() const noexcept { return true; }
-
-	iterator find(const K& key) { return end(); }
-
-	const_iterator find(const K& key) const { return end(); }
->>>>>>> origin/main
 
 	bool contains(const K& key) const { return find(key) != end(); }
 
 	V& at(const K& key)
 	{
-<<<<<<< HEAD
 		iterator it = find(key);
 		if (it != end())
 		{
 			return it->second;
 		}
-=======
->>>>>>> origin/main
 		throw std::out_of_range("bmstu::unordered_map::at: key not found");
 	}
 
 	const V& at(const K& key) const
 	{
-<<<<<<< HEAD
 		const_iterator it = find(key);
 		if (it != end())
 		{
 			return it->second;
 		}
-=======
->>>>>>> origin/main
 		throw std::out_of_range("bmstu::unordered_map::at: key not found");
 	}
 
 	std::pair<iterator, bool> insert(const value_type& kv)
 	{
-<<<<<<< HEAD
 		iterator it = find(kv.first);
 		if (it != end())
 		{
@@ -519,22 +472,6 @@ class unordered_map
 			rehash(min_buckets);
 		}
 	}
-=======
-		return {end(), false};
-	}
-
-	V& operator[](const K& key) { return insert({key, V{}}).first->second; }
-
-	bool erase(const K& key) { return false; }
-
-	void clear() {}
-
-	double load_factor() const { return 0.0; }
-
-	size_type bucket_count() const { return 0; }
-
-	void reserve(size_type count) {}
->>>>>>> origin/main
 };
 
 }  // namespace bmstu
