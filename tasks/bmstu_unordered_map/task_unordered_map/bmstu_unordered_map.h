@@ -164,23 +164,24 @@ class unordered_map
 	}
 
    public:
-	struct iterator
+	template <typename IteratorValueType,
+			  typename VecPtrType,
+			  typename ListIterType>
+	struct base_iterator
 	{
 		using iterator_category = std::forward_iterator_tag;
-		using value_type = unordered_map::value_type;
+		using value_type = IteratorValueType;
 		using difference_type = std::ptrdiff_t;
 		using pointer = value_type*;
 		using reference = value_type&;
 
-		std::vector<bucket_type>* buckets_ = nullptr;
+		VecPtrType buckets_ = nullptr;
 		size_type bucket_idx_ = 0;
-		typename bucket_type::iterator list_it_;
+		ListIterType list_it_;
 
-		iterator() = default;
+		base_iterator() = default;
 
-		iterator(std::vector<bucket_type>* buckets,
-				 size_type idx,
-				 typename bucket_type::iterator it)
+		base_iterator(VecPtrType buckets, size_type idx, ListIterType it)
 			: buckets_(buckets), bucket_idx_(idx), list_it_(it)
 		{
 		}
@@ -188,7 +189,7 @@ class unordered_map
 		reference operator*() const { return *list_it_; }
 		pointer operator->() const { return &(*list_it_); }
 
-		iterator& operator++()
+		base_iterator& operator++()
 		{
 			++list_it_;
 			if (list_it_ == (*buckets_)[bucket_idx_].end())
@@ -212,91 +213,49 @@ class unordered_map
 			return *this;
 		}
 
-		iterator operator++(int)
+		base_iterator operator++(int)
 		{
-			iterator tmp = *this;
+			auto tmp = *this;
 			++(*this);
 			return tmp;
 		}
 
-		bool operator==(const iterator& o) const
+		bool operator==(const base_iterator& o) const
 		{
 			return (buckets_ == o.buckets_ && bucket_idx_ == o.bucket_idx_ &&
 					list_it_ == o.list_it_);
 		}
 
-		bool operator!=(const iterator& o) const { return !(*this == o); }
+		bool operator!=(const base_iterator& o) const { return !(*this == o); }
+	};
+	struct iterator : public base_iterator<unordered_map::value_type,
+										   std::vector<bucket_type>*,
+										   typename bucket_type::iterator>
+	{
+		using base_iterator<unordered_map::value_type,
+							std::vector<bucket_type>*,
+							typename bucket_type::iterator>::base_iterator;
 	};
 
 	struct const_iterator
+		: public base_iterator<const unordered_map::value_type,
+							   const std::vector<bucket_type>*,
+							   typename bucket_type::const_iterator>
 	{
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = const unordered_map::value_type;
-		using difference_type = std::ptrdiff_t;
-		using pointer = const value_type*;
-		using reference = const value_type&;
+		using base_iterator<
+			const unordered_map::value_type,
+			const std::vector<bucket_type>*,
+			typename bucket_type::const_iterator>::base_iterator;
 
-		const std::vector<bucket_type>* buckets_ = nullptr;
-		size_type bucket_idx_ = 0;
-		typename bucket_type::const_iterator list_it_;
-
-		const_iterator() = default;
-
-		const_iterator(const std::vector<bucket_type>* buckets,
-					   size_type idx,
-					   typename bucket_type::const_iterator it)
-			: buckets_(buckets), bucket_idx_(idx), list_it_(it)
+		const_iterator(const iterator& other)
+			: base_iterator<const unordered_map::value_type,
+							const std::vector<bucket_type>*,
+							typename bucket_type::const_iterator>(
+				  other.buckets_,
+				  other.bucket_idx_,
+				  other.list_it_)
 		{
 		}
-
-		const_iterator(const iterator& it)
-			: buckets_(it.buckets_),
-			  bucket_idx_(it.bucket_idx_),
-			  list_it_(it.list_it_)
-		{
-		}
-
-		reference operator*() const { return *list_it_; }
-		pointer operator->() const { return &(*list_it_); }
-
-		const_iterator& operator++()
-		{
-			++list_it_;
-			if (list_it_ == (*buckets_)[bucket_idx_].end())
-			{
-				++bucket_idx_;
-				while (bucket_idx_ < buckets_->size() &&
-					   (*buckets_)[bucket_idx_].empty())
-				{
-					++bucket_idx_;
-				}
-
-				if (bucket_idx_ < buckets_->size())
-				{
-					list_it_ = (*buckets_)[bucket_idx_].begin();
-				}
-				else
-				{
-					list_it_ = {};
-				}
-			}
-			return *this;
-		}
-
-		const_iterator operator++(int)
-		{
-			const_iterator tmp = *this;
-			++(*this);
-			return tmp;
-		}
-
-		bool operator==(const const_iterator& o) const
-		{
-			return (buckets_ == o.buckets_ && bucket_idx_ == o.bucket_idx_ &&
-					list_it_ == o.list_it_);
-		}
-
-		bool operator!=(const const_iterator& o) const { return !(*this == o); }
 	};
 
 	explicit unordered_map(size_type bucket_count = DEFAULT_BUCKET_COUNT)
